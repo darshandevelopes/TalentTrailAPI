@@ -9,6 +9,10 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
 from .serializers import UserSerializer
+import os
+from django.http import JsonResponse
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 
 
 @api_view(['POST'])
@@ -34,8 +38,24 @@ def login(request):
     return Response({'token': token.key, 'user': serializer.data})
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def test_token(request):
-    return Response("passed!")
+def upload_resume(request):
+    if 'file' in request.FILES:
+        resume = request.FILES['file']
+        if resume.content_type != 'application/pdf':
+            return JsonResponse({'error': 'File type not supported'}, status=400)
+
+        user_id = request.user.id
+        filename = f"{user_id}.pdf"
+        save_path = os.path.join(settings.MEDIA_ROOT, 'resumes', filename)
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+        with open(save_path, 'wb+') as destination:
+            for chunk in resume.chunks():
+                destination.write(chunk)
+
+        return JsonResponse({'message': 'Resume uploaded successfully'})
+    else:
+        return JsonResponse({'error': 'No file attached'}, status=400)
