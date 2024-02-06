@@ -20,7 +20,7 @@ from TalentTrailAPI import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('signup/', views.signup),
-    path('login/', views.login),
-    path('upload-resume/', views.upload_resume),
+    path('api/signup/', views.signup),
+    path('api/login/', views.login),
+    path('api/upload-resume/', views.upload_resume),
 ]

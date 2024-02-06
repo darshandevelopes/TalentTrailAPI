@@ -28,6 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+AUTH_USER_MODEL = 'TalentTrailAPI.CustomUser'
 
 # Application definition
 
@@ -132,3 +133,11 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CSRF_TRUSTED_ORIGINS = ['https://apigroup.me', 'https://www.apigroup.me']
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.privateemail.com'
+EMAIL_HOST_USER = 'password-reset@apigroup.me'
+EMAIL_HOST_PASSWORD = 'Aa#188888888'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
