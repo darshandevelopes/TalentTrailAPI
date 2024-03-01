@@ -71,9 +71,8 @@
       <!-- Add your job posting content here -->
       <h2>Your Job Posts</h2>
       <div class="header">
-        <button class="upload-btn" onclick="location.href='postjob'">
-          Post New Job
-        </button>
+        <!-- Using token authentication -->
+        <button class="upload-btn" onclick="postJobPage()">Post New Job</button>
         <button class="home-btn" onclick="location.href='/hr'">Home</button>
       </div>
     </div>
@@ -87,8 +86,8 @@
         table.innerHTML = `
                 <tr>
                     <th>Title</th>
-                    <th>Experience</th>
-                    <th>Package</th>
+                    <th>Experience (Years)</th>
+                    <th>Package (LPA)</th>
                     <th>Skills</th>
                     <th>Job Type</th>
                     <th>Location</th>
@@ -114,5 +113,31 @@
         });
         document.body.appendChild(table);
       });
+  </script>
+
+  <script>
+    function postJobPage() {
+      if (localStorage.getItem("token")) {
+        const token = localStorage.getItem("token");
+        fetch("postjob", {
+          method: "GET",
+          headers: {
+            Authorization: `token ${token}`,
+          },
+        })
+          .then((response) => {
+            if (response.ok) {
+              window.location.href = "postjob";
+            } else {
+              console.error("Failed to load postjob page");
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      } else {
+        console.log("Token not found");
+      }
+    }
   </script>
 </html>

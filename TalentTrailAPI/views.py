@@ -62,6 +62,13 @@ def upload_resume(request):
         return JsonResponse({'error': 'No file attached'}, status=400)
 
 @api_view(['GET'])
+def job_list(request):
+    jobs = Job.objects.all()
+    serializer = JobSerializer(jobs, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+# HR Endpoints
+@api_view(['GET'])
 def hr_homepage(request):
     return render(request, 'home.html')
 
@@ -119,12 +126,6 @@ def hr_job_post(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET'])
-def job_list(request):
-    jobs = Job.objects.all()
-    serializer = JobSerializer(jobs, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def view_jobs(request):

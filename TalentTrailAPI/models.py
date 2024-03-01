@@ -34,9 +34,9 @@ class CustomUser(AbstractUser):
 class Job(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
-    experience = models.IntegerField()
-    # experience_max = models.IntegerField()
-    package = models.IntegerField()
+    experience = models.FloatField()
+    # experience_max = models.FloatField()
+    package = models.FloatField()
     skills_required = models.CharField(max_length=100)
     job_type = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
