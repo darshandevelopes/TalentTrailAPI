@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Professional Business Home</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+        background-size: cover;
+        background-position: center;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: #000000;
+        text-align: center;
+      }
+
+      .content-container {
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        width: 80%;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 18px;
+        line-height: 1.6;
+      }
+
+      .btn {
+        background-color: #4caf50;
+        color: #fff;
+        padding: 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        text-decoration: none;
+        margin-top: 20px;
+        display: inline-block;
+      }
+
+      .btn:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content-container">
+      <h1>Welcome to Our Professional Hiring Portal</h1>
+      <p>
+        We are a professional hiring portal that connects employers with
+        reliable and skilled professionals.
+      </p>
+      <button class="login btn" onclick="location.href='login'">Login</button>
+      <button class="signup btn" onclick="location.href='signup'">
+        Sign Up
+      </button>
+      <button class="postjob btn" onclick="location.href='postjob'">
+        Post A Job
+      </button>
+      <button class="viewjobs btn" onclick="location.href='viewjobs'">
+        View Posted Jobs
+      </button>
+
+      <button class="logout btn" onclick="logout()">Logout</button>
+    </div>
+  </body>
+  <script>
+    // Check if the user is logged in
+    if (localStorage.getItem("token")) {
+      // show only jobpost and logout buttons
+      document.querySelector(".login").style.display = "none";
+      document.querySelector(".signup").style.display = "none";
+    } else {
+      // show only login and signup buttons
+      document.querySelector(".postjob").style.display = "none";
+      document.querySelector(".logout").style.display = "none";
+      document.querySelector(".viewjobs").style.display = "none";
+    }
+    // function to remove the token from local storage
+    function logout() {
+      localStorage.removeItem("token");
+      location.reload();
+    }
+  </script>
+</html>

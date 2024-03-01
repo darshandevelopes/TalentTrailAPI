@@ -26,7 +26,10 @@ SECRET_KEY = 'django-insecure-$@vd^vbvgobp$-h7pg8omw-t6x_g+v8mr%n=y779v5e6-oqp%#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['apigroup.me', 'www.apigroup.me', '127.0.0.1', 'localhost','3.109.209.206']
+
+CSRF_TRUSTED_ORIGINS = ['https://apigroup.me', 'https://www.apigroup.me', 'http://127.0.0.1:8000', 'http://127.0.0.1','http://3.109.209.206']
+CORS_ALLOWED_ORIGINS = ['https://apigroup.me', 'https://www.apigroup.me', 'http://127.0.0.1:8000', 'http://127.0.0.1','http://3.109.209.206']
 
 AUTH_USER_MODEL = 'TalentTrailAPI.CustomUser'
 
@@ -59,7 +62,7 @@ ROOT_URLCONF = 'TalentTrailAPI.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR, 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,9 +134,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-CSRF_TRUSTED_ORIGINS = ['https://apigroup.me', 'https://www.apigroup.me']
-
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail.privateemail.com'

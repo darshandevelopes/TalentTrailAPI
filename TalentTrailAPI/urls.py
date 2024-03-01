@@ -23,4 +23,10 @@ urlpatterns = [
     path('api/signup/', views.signup),
     path('api/login/', views.login),
     path('api/upload-resume/', views.upload_resume),
+    path('hr/', views.hr_homepage),
+    path('hr/login/', views.hr_login, name='hr_login'),
+    path('hr/signup/', views.hr_signup, name='hr_signup'),
+    path('hr/postjob/', views.hr_job_post, name='hr_job_post'),
+    path('api/jobs/', views.job_list, name='job_list'),
+    path('hr/viewjobs', views.view_jobs)
 ]

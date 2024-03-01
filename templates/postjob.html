@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Posting Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-top: 250px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 16px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      input[type="submit"] {
+        background-color: #4caf50;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      input[type="submit"]:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <form onsubmit="submitForm(event)">
+      {% csrf_token %}
+      <label for="title">Job Title:</label>
+      <input type="text" id="title" name="title" required />
+
+      <label for="experience">Experience Required (Years):</label>
+      <input type="number" id="experience" name="experience" required />
+
+      <label for="package">Package (LPA):</label>
+      <input type="number" id="package" name="package" required />
+
+      <label for="skills_required">Skills Required</label>
+      <input type="text" id="skills_required" name="skills_required" required />
+
+      <label for="job_type">Remote/Onsite:</label>
+      <select id="job_type" name="job_type" required>
+        <option value="remote">Remote</option>
+        <option value="onsite">Onsite</option>
+      </select>
+
+      <label for="location">Location:</label>
+      <input type="text" id="location" name="location" required />
+
+      <label for="company">Company Name:</label>
+      <input type="text" id="company" name="company" required />
+
+      <label for="qualification">Qualification:</label>
+      <select id="qualification" name="qualification" required>
+        <option value="yes">Bachelor's</option>
+        <option value="no">Master's</option>
+        <option value="no">PHD</option>
+      </select>
+
+      <label for="specialization">Specialization:</label>
+      <input type="text" id="specialization" name="specialization" required />
+
+      <!-- <label for="company_logo">Company Logo:</label>
+      <input type="file" id="company_logo" name="company_logo" required /> -->
+
+      <input type="submit" value="Submit" />
+    </form>
+  </body>
+  <script>
+    // Redirect to login if not already
+    if (localStorage.getItem("token") == null) {
+      location.href = "/hr/login";
+    }
+
+    function submitForm(event) {
+      event.preventDefault();
+
+      var csrftoken = document.querySelector(
+        "[name=csrfmiddlewaretoken]"
+      ).value;
+
+      var raw = JSON.stringify({
+        title: document.getElementById("title").value,
+        experience: document.getElementById("experience").value,
+        package: document.getElementById("package").value,
+        skills_required: document.getElementById("skills_required").value,
+        job_type: document.getElementById("job_type").value,
+        location: document.getElementById("location").value,
+        company: document.getElementById("company").value,
+        qualification: document.getElementById("qualification").value,
+        specialization: document.getElementById("specialization").value,
+      });
+
+      // Send the request with the token in the header
+      fetch(event.target.action, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "token " + localStorage.getItem("token"),
+          "X-CSRFToken": csrftoken,
+        },
+        body: raw,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // Handle the response data
+          console.log(data);
+          if (data.error) {
+            alert(data.error);
+          } else {
+            alert("Job posted successfully");
+            window.location.href = "/hr/viewjobs";
+          }
+        })
+        .catch((error) => {
+          // Handle the error
+          console.error(error);
+        });
+    }
+  </script>
+</html>
