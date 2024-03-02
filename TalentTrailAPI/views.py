@@ -49,22 +49,37 @@ def upload_resume(request):
             return JsonResponse({'error': 'File type not supported'}, status=400)
 
         user_id = request.user.id
-        filename = f"{user_id}.pdf"
-        save_path = os.path.join(settings.MEDIA_ROOT, 'resumes', filename)
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        job_id = request.data['job_id']
 
-        with open(save_path, 'wb+') as destination:
-            for chunk in resume.chunks():
-                destination.write(chunk)
+        # check if user already applied to this job
+        job_application = JobApplication.objects.filter(user=user_id, job=job_id)
+        if job_application.exists():
+            return JsonResponse({'error': 'You have already applied to this job'}, status=status.HTTP_400_BAD_REQUEST)
 
-        return JsonResponse({'message': 'Resume uploaded successfully'})
+        serializer = JobApplicationSerializer(data={'user': user_id, 'job':job_id,'resume': resume})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # return JsonResponse({'message': 'Resume uploaded successfully'})
     else:
-        return JsonResponse({'error': 'No file attached'}, status=400)
+        return JsonResponse({'error': 'No file attached'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def job_list(request):
     jobs = Job.objects.all()
     serializer = JobSerializer(jobs, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def applied_job_list(request):
+    user_id = request.user.id
+    print(user_id)
+    job_applications = JobApplication.objects.filter(user=user_id)
+    serializer = JobApplicationSerializer(job_applications, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 # HR Endpoints

@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/login/', views.login),
     path('api/upload-resume/', views.upload_resume),
     path('api/jobs/', views.job_list, name='job_list'),
+    path('api/applications/', views.applied_job_list, name='applied_job_list'),
 
     # HR Endpoints
     path('hr/', views.hr_homepage),
@@ -32,3 +33,4 @@ urlpatterns = [
     path('hr/postjob/', views.hr_job_post, name='hr_job_post'),
     path('hr/viewjobs', views.view_jobs)
 ]
+
