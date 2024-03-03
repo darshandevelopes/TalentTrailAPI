@@ -21,6 +21,10 @@ import os
 
 AI_BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
+# Load the trained classifier
+svcm = pickle.load(open(os.path.join(AI_BASE_PATH, 'upsvcm.pkl'), 'rb'))
+ftfidfd = pickle.load(open(os.path.join(AI_BASE_PATH, 'updatedfidf.pkl'),'rb'))
+
 class ResumeAnalyzer:
     def __init__(self, resume_path):
         self.resume_path = resume_path
@@ -29,6 +33,7 @@ class ResumeAnalyzer:
         self.min_experience = 0
         self.max_experience = 10
         self.required_jobProfile = ""
+        self.candidate_predicted_profile = ""
 
     # Extracting Features
     def extract_resume_text(self):
@@ -48,7 +53,8 @@ class ResumeAnalyzer:
             text = fake_file_handle.getvalue()
             return text
 
-    def clean_resume(self, resume_text):
+    @staticmethod
+    def clean_resume(resume_text):
         clean_text = re.sub('http\S+\s*', ' ', resume_text)
         clean_text = re.sub('RT|cc', ' ', clean_text)
         clean_text = re.sub('#\S+', '', clean_text)
@@ -57,8 +63,9 @@ class ResumeAnalyzer:
         clean_text = re.sub(r'[^\x00-\x7f]', r' ', clean_text)
         clean_text = re.sub('\s+', ' ', clean_text)
         return clean_text
-
-    def removeStopWords(self, txt):
+    
+    @staticmethod
+    def removeStopWords(txt):
         SetOfStopWords= set(stopwords.words('english')+['``',"''"])
         word_tokens = word_tokenize(txt)
         filtered_sentence = [w for w in word_tokens if not w.lower() in SetOfStopWords and w not in string.punctuation]
@@ -94,16 +101,44 @@ class ResumeAnalyzer:
 
         return candidate_skill
 
+    @staticmethod
     def experience_matcher(candidate_experience, required_experience_min, required_experience_max):
         if candidate_experience >= required_experience_min and candidate_experience <= required_experience_max:
             return True
         return False
 
-    def predict_profile(self):
-        # Load the trained classifier
-        svcm = pickle.load(open(os.path.join(AI_BASE_PATH, 'upsvcm.pkl'), 'rb'))
-        ftfidfd = pickle.load(open(os.path.join(AI_BASE_PATH, 'updatedfidf.pkl'),'rb'))
+    @staticmethod
+    def candidate_level(no_of_pages):
+        cand_level = ''
+        if no_of_pages == 1:
+            cand_level = "Fresher"      
+        elif no_of_pages == 2:
+            cand_level = "Intermediate"       
+        elif no_of_pages >= 3:
+            cand_level = "Experienced"
 
+        return cand_level
+
+    @staticmethod
+    def recommend_skills(predicted_profile):
+        recommended_skills=[]
+        if predicted_profile == "Data Science": 
+            recommended_skills = ['Data Visualization', 'Predictive Analysis', 'Statistical Modeling',
+                                'Data Mining', 'Clustering & Classification', 'Data Analytics',
+                                'Quantitative Analysis', 'Web Scraping', 'ML Algorithms', 'Keras',
+                                'Pytorch', 'Probability', 'Scikit-learn', 'Tensorflow', "Flask",
+                                'Streamlit']
+        elif predicted_profile == "Web Designing":
+            recommended_skills = ['React', 'Django', 'Node JS', 'React JS', 'php', 'laravel', 'Magento',
+                                'wordpress', 'Javascript', 'Angular JS', 'c#', 'Flask', 'SDK']
+        elif predicted_profile == "UI-UX Designer":
+            recommended_skills = ['UI', 'User Experience', 'Adobe XD', 'Figma', 'Zeplin', 'Balsamiq',
+                                                'Prototyping', 'Wireframes', 'Storyframes', 'Adobe Photoshop', 'Editing',
+                                                'Illustrator', 'After Effects', 'Premier Pro', 'Indesign', 'Wireframe',
+                                                'Solid', 'Grasp', 'User Research']
+        return recommended_skills
+
+    def predict_profile(self):
         cleaned_resume = self.clean_resume(self.resume_text)
         more_cleaned = self.removeStopWords(cleaned_resume)
         #Removing stopwords
@@ -146,10 +181,10 @@ class ResumeAnalyzer:
         return category_name
 
     def profile_matcher(self):
-        candidate_profile = self.predict_profile()
+        self.candidate_predicted_profile = self.predict_profile()
         required_profile = self.required_jobProfile
 
-        if(candidate_profile == required_profile):
+        if(self.candidate_predicted_profile  == required_profile):
             return True
         
         return False
@@ -202,9 +237,35 @@ class ResumeAnalyzer:
 
         return resume_score    
 
+    def analyze_resume_for_candidate(self):
+        # Resume Parsing Using PyResParser
+        resume_data = ResumeParser(self.resume_path).get_extracted_data()
+        if resume_data:
+            # Experienced Level
+            no_of_pages = resume_data['no_of_pages']
+            experienced_level = self.candidate_level(no_of_pages)
+
+            # Resume Tips & Tricks
+            resume_sections_present = {'objective': False, 'declaration': False, 'hobbies': False, 'achievements': False, 'projects': False}
+            keywords = {'Objective': 'objective', 'Declaration': 'declaration', 'Hobbies': 'hobbies', 'Interests': 'hobbies', 'Achievements': 'achievements', 'Projects': 'projects'}
+
+            for keyword, key in keywords.items():
+                if keyword in self.resume_text:
+                    resume_sections_present[key] = True
+            
+            # Recommended Skills
+            candidate_skills = resume_data['skills']
+            recommended_skills = self.recommend_skills(self.candidate_predicted_profile )
+            return {'experienced_level': experienced_level, 'resume_sections_present': resume_sections_present, 'candidate_skills': candidate_skills, 'recommended_skills': recommended_skills}
+
+    def analyze_resume_for_hr(self):
+        profile_matches = self.profile_matcher()
+        score = self.resume_score()
+        return {'predicted_profile':self.candidate_predicted_profile, 'profile_matches': profile_matches, 'score': score}
+    
 if __name__ == "__main__":
     resume_path = os.path.join(AI_BASE_PATH, 'aws-devops-elegant-resume-example.pdf')
     analyzer = ResumeAnalyzer(resume_path)
-    print(analyzer.predict_profile())
-    print(analyzer.profile_matcher())
-    print(analyzer.resume_score())
+    print(analyzer.analyze_resume_for_hr())
+    print(analyzer.analyze_resume_for_candidate())
+
