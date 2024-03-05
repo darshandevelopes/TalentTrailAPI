@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.shortcuts import render
+from AI.resume_score import ResumeAnalyzer 
 
 User = get_user_model()
 
@@ -47,7 +48,7 @@ def upload_resume(request):
         resume = request.FILES['file']
         if resume.content_type != 'application/pdf':
             return JsonResponse({'error': 'File type not supported'}, status=400)
-
+        
         user_id = request.user.id
         job_id = request.data['job_id']
 
@@ -58,7 +59,23 @@ def upload_resume(request):
 
         serializer = JobApplicationSerializer(data={'user': user_id, 'job':job_id,'resume': resume})
         if serializer.is_valid():
-            serializer.save()
+            job_application = serializer.save()
+            # get resume path from serializer
+            resume_path = serializer.data['resume']
+            resume_path = os.path.join(settings.MEDIA_ROOT, resume_path)
+            print(resume_path)
+            resume_path  = '/home/darshan/Desktop/talenttrail-backend'+resume_path
+            analyzer = ResumeAnalyzer(resume_path)
+            analysis = analyzer.analyze_resume_for_hr()
+            dd =  {'user': user_id, 'job':job_id,'resume': resume}
+            for key in dd.keys():
+                analysis[key] = dd[key]
+            detail_serializer = JobApplicationDetailSerializer(job_application, data=analysis)
+            if detail_serializer.is_valid():
+                detail_serializer.save()
+            else:
+                print(detail_serializer.errors)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         # return JsonResponse({'message': 'Resume uploaded successfully'})
@@ -70,7 +87,6 @@ def job_list(request):
     jobs = Job.objects.all()
     serializer = JobSerializer(jobs, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -126,15 +142,6 @@ def hr_signup(request):
 def hr_job_post(request):
     if request.method == 'GET':
         return render(request, 'postjob.html')
-    # if 'file' in request.FILES:
-    #     logo = request.FILES['file']
-    #     user_id = request.user.id
-    #     filename = f"{user_id}.png"
-    #     save_path = os.path.join(settings.MEDIA_ROOT, 'logos', filename)
-    #     os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    #     with open(save_path, 'wb+') as destination:
-    #         for chunk in logo.chunks():
-    #             destination.write(chunk)
     else:
         serializer = JobSerializer(data=request.data)
         if serializer.is_valid():
@@ -145,3 +152,14 @@ def hr_job_post(request):
 @api_view(['GET'])
 def view_jobs(request):
     return render(request, 'view-jobposts.html')
+
+@api_view(['GET'])
+def job_applications(request):
+    if 'job_id' in request.data:
+        job_id = request.data['job_id']
+        job_applications = JobApplication.objects.filter(job=job_id)
+        serializer = JobApplicationDetailSerializer(job_applications, many=True)
+        return render(request, 'job_applications.html', {'job_applications': serializer.data})
+    else:
+        return Response({'error':'job_id is required'}, status.HTTP_400_BAD_REQUEST)
+    

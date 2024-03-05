@@ -31,6 +31,7 @@ urlpatterns = [
     path('hr/login/', views.hr_login, name='hr_login'),
     path('hr/signup/', views.hr_signup, name='hr_signup'),
     path('hr/postjob/', views.hr_job_post, name='hr_job_post'),
-    path('hr/viewjobs', views.view_jobs)
+    path('hr/viewjobs', views.view_jobs),
+    path('hr/job-applications', views.job_applications, name='job_applications')
 ]
 

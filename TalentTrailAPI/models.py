@@ -51,4 +51,7 @@ class JobApplication(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     resume = models.FileField(upload_to='resumes')
+    predicted_profile = models.CharField(max_length=100, blank=True, null=True)
+    does_profile_match = models.BooleanField(blank=True, null=True)
+    score = models.FloatField(blank=True, null=True)
 

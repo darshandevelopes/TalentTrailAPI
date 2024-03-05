@@ -261,7 +261,7 @@ class ResumeAnalyzer:
     def analyze_resume_for_hr(self):
         profile_matches = self.profile_matcher()
         score = self.resume_score()
-        return {'predicted_profile':self.candidate_predicted_profile, 'profile_matches': profile_matches, 'score': score}
+        return {'predicted_profile':self.candidate_predicted_profile, 'does_profile_match': profile_matches, 'score': score}
     
 if __name__ == "__main__":
     resume_path = os.path.join(AI_BASE_PATH, 'aws-devops-elegant-resume-example.pdf')
