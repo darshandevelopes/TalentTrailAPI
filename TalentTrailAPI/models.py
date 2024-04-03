@@ -55,3 +55,6 @@ class JobApplication(models.Model):
     does_profile_match = models.BooleanField(blank=True, null=True)
     score = models.FloatField(blank=True, null=True)
 
+    def delete(self, *args, **kwargs):
+        self.resume.delete(save=False)  # delete the associated file
+        super().delete(*args, **kwargs)  # call the original delete() method

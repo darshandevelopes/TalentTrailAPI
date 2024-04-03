@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from TalentTrailAPI import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,6 +34,12 @@ urlpatterns = [
     path('hr/signup/', views.hr_signup, name='hr_signup'),
     path('hr/postjob/', views.hr_job_post, name='hr_job_post'),
     path('hr/viewjobs', views.view_jobs),
-    path('hr/job-applications', views.job_applications, name='job_applications')
+    path('hr/job-applicants/<int:job_id>', views.job_applications, name='job_applications'),
 ]
-
+# Only serves files in DEBUG mode
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# in production do 
+#Nginx settings as follows
+# location /media/ {
+#     alias /path/to/your/project/media/;
+# }

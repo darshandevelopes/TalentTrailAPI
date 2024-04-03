@@ -64,11 +64,19 @@
       tr:nth-child(even) {
         background-color: Lightgreen;
       }
+      .data-row {
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .data-row:hover {
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        transform: scale(1.02);
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <!-- Add your job posting content here -->
       <h2>Your Job Posts</h2>
       <div class="header">
         <!-- Using token authentication -->
@@ -98,6 +106,7 @@
             `;
         data.forEach((jobpost) => {
           let row = document.createElement("tr");
+          row.className = "data-row";
           row.innerHTML = `
                     <td>${jobpost.title}</td>
                     <td>${jobpost.experience}</td>
@@ -109,6 +118,9 @@
                     <td>${jobpost.qualification}</td>
                     <td>${jobpost.total_applicants}</td>
                 `;
+          row.addEventListener("click", function () {
+            window.location.href = `${window.location.origin}/hr/job-applicants/${jobpost.id}`;
+          });
           table.appendChild(row);
         });
         document.body.appendChild(table);

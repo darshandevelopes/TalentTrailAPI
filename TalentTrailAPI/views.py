@@ -136,30 +136,39 @@ def hr_signup(request):
     else:
         return render(request, 'signup.html')
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'DELETE'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def hr_job_post(request):
     if request.method == 'GET':
         return render(request, 'postjob.html')
+    elif request.method == 'DELETE':
+        try:
+            job_id = request.data.get('job_id')
+            job_post = Job.objects.get(id=job_id)
+        except Job.DoesNotExist:
+            return Response({'error': 'JobPost not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        job_post.delete()
+        return Response({'message': 'JobPost deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
     else:
         serializer = JobSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
 @api_view(['GET'])
 def view_jobs(request):
     return render(request, 'view-jobposts.html')
 
 @api_view(['GET'])
-def job_applications(request):
-    if 'job_id' in request.data:
-        job_id = request.data['job_id']
+def job_applications(request, job_id):
+    if job_id is not None:
         job_applications = JobApplication.objects.filter(job=job_id)
         serializer = JobApplicationDetailSerializer(job_applications, many=True)
         return render(request, 'job_applications.html', {'job_applications': serializer.data})
     else:
         return Response({'error':'job_id is required'}, status.HTTP_400_BAD_REQUEST)
-    
+

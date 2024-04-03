@@ -1,26 +1,124 @@
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Job</th>
-      <th>User</th>
-      <th>Resume</th>
-      <th>Predicted Profile</th>
-      <th>Does Profile Match</th>
-      <th>Score</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for job_application in job_applications %}
-    <tr>
-      <td>{{ job_application.id }}</td>
-      <td>{{ job_application.job }}</td>
-      <td>{{ job_application.user }}</td>
-      <td>{{ job_application.resume }}</td>
-      <td>{{ job_application.predicted_profile }}</td>
-      <td>{{ job_application.does_profile_match }}</td>
-      <td>{{ job_application.score }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      #deleteButton {
+        background-color: lightcoral;
+        color: white;
+        border: none;
+        padding: 10px;
+        margin: 10px;
+        cursor: pointer;
+        float: right;
+        margin-right: 50px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 90%;
+        margin: 50px;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 8px;
+      }
+
+      tr:nth-child(even) {
+        background-color: Lightgreen;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="deleteButton">Delete Job Post</button>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Job</th>
+          <th>User</th>
+          <th>Resume</th>
+          <th>Predicted Profile</th>
+          <th>Does Profile Match</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job_application in job_applications %}
+        <tr>
+          <td>{{ job_application.id }}</td>
+          <td class="job_id">{{ job_application.job }}</td>
+          <td>{{ job_application.user }}</td>
+          <td>
+            <a href="{{ job_application.resume }}" download>
+              <i class="fas fa-download"></i>
+            </a>
+          </td>
+          <td>{{ job_application.predicted_profile }}</td>
+          <td>{{ job_application.does_profile_match }}</td>
+          <td>{{ job_application.score }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td
+            colspan="7"
+            style="
+              text-align: center;
+              font-weight: bold;
+              font-size: 20px;
+              background-color: yellow;
+            "
+          >
+            No one applied yet
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+  <script>
+    document
+      .getElementById("deleteButton")
+      .addEventListener("click", function () {
+        if (confirm("Are you sure you want to delete this job post?")) {
+          // Blur background page
+          document.body.style.filter = "blur(5px)";
+
+          var pathArray = window.location.pathname.split("/");
+          var job_id = pathArray[pathArray.length - 1];
+
+          // Call your API to delete the job post here.
+          fetch("/hr/postjob/", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "token " + localStorage.getItem("token"),
+            },
+            body: JSON.stringify({ job_id: job_id }),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Network response was not ok");
+              }
+              // If the delete was successful, show a success message and redirect to /hr/viewjobs after 1.5 seconds.
+              alert("Deleted successfully");
+              window.location.href = "/hr/viewjobs";
+            })
+            .catch((error) => {
+              console.error(
+                "There was a problem with the fetch operation:",
+                error
+              );
+            })
+            .finally(() => {
+              // Unblur background page
+              document.body.style.filter = "";
+            });
+        }
+      });
+  </script>
+</html>
