@@ -51,7 +51,7 @@
     </style>
   </head>
   <body>
-    <form onsubmit="submitForm(event)">
+    <form onsubmit="submitForm(event)" enctype="multipart/form-data">
       {% csrf_token %}
       <label for="title">Job Title:</label>
       <input type="text" id="title" name="title" required />
@@ -85,16 +85,16 @@
 
       <label for="qualification">Qualification:</label>
       <select id="qualification" name="qualification" required>
-        <option value="yes">Bachelor's</option>
-        <option value="no">Master's</option>
-        <option value="no">PHD</option>
+        <option value="Bachelor's in ">Bachelor's</option>
+        <option value="Master's in">Master's</option>
+        <option value="PHD in">PHD</option>
       </select>
 
       <label for="specialization">Specialization:</label>
       <input type="text" id="specialization" name="specialization" required />
 
-      <!-- <label for="company_logo">Company Logo:</label>
-      <input type="file" id="company_logo" name="company_logo" required /> -->
+      <label for="company_logo">Company Logo:</label>
+      <input type="file" id="company_logo" name="company_logo" required />
 
       <input type="submit" value="Submit" />
     </form>
@@ -112,27 +112,38 @@
         "[name=csrfmiddlewaretoken]"
       ).value;
 
-      var raw = JSON.stringify({
-        title: document.getElementById("title").value,
-        experience: document.getElementById("experience").value,
-        package: document.getElementById("package").value,
-        skills_required: document.getElementById("skills_required").value,
-        job_type: document.getElementById("job_type").value,
-        location: document.getElementById("location").value,
-        company: document.getElementById("company").value,
-        qualification: document.getElementById("qualification").value,
-        specialization: document.getElementById("specialization").value,
-      });
+      var formData = new FormData();
+      formData.append("title", document.getElementById("title").value);
+      formData.append(
+        "experience",
+        document.getElementById("experience").value
+      );
+      formData.append("package", document.getElementById("package").value);
+      formData.append(
+        "skills_required",
+        document.getElementById("skills_required").value
+      );
+      formData.append("job_type", document.getElementById("job_type").value);
+      formData.append("location", document.getElementById("location").value);
+      formData.append("company", document.getElementById("company").value);
+      formData.append(
+        "qualification",
+        document.getElementById("qualification").value +
+          document.getElementById("specialization").value
+      );
+      formData.append(
+        "company_logo",
+        document.getElementById("company_logo").files[0]
+      );
 
       // Send the request with the token in the header
       fetch(event.target.action, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: "token " + localStorage.getItem("token"),
           "X-CSRFToken": csrftoken,
         },
-        body: raw,
+        body: formData,
       })
         .then((response) => response.json())
         .then((data) => {
