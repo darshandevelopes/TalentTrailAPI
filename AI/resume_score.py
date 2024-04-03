@@ -26,10 +26,10 @@ svcm = pickle.load(open(os.path.join(AI_BASE_PATH, 'upsvcm.pkl'), 'rb'))
 ftfidfd = pickle.load(open(os.path.join(AI_BASE_PATH, 'updatedfidf.pkl'),'rb'))
 
 class ResumeAnalyzer:
-    def __init__(self, resume_path):
+    def __init__(self, resume_path, required_skills):
         self.resume_path = resume_path
         self.resume_text = self.extract_resume_text()
-        self.required_skills = []
+        self.required_skills = required_skills
         self.min_experience = 0
         self.max_experience = 10
         self.required_jobProfile = ""
@@ -38,6 +38,8 @@ class ResumeAnalyzer:
     # Extracting Features
     def extract_resume_text(self):
         resume_file = self.resume_path
+        # resume_file = os.path.dirname(AI_BASE_PATH)+resume_file
+
         resource_manager = PDFResourceManager()
         with io.StringIO() as fake_file_handle:
             with TextConverter(resource_manager, fake_file_handle, laparams=LAParams()) as converter:
@@ -79,6 +81,7 @@ class ResumeAnalyzer:
     # Extraction of Skill using pyresparser
     def extract_resume_skill(self):
         resume_file = self.resume_path
+        # resume_file = os.path.dirname(AI_BASE_PATH)+resume_file
         resume_data = ResumeParser(resume_file).get_extracted_data()
         candidate_skill = resume_data['skills']
         return candidate_skill
@@ -195,7 +198,7 @@ class ResumeAnalyzer:
 
         cv_lower = [x.lower() for x in candidate_skill]
         job_description_lower = [x.lower() for x in self.required_skills]
-
+        print(f"cv lower {cv_lower}\njob {job_description_lower}")
         for required_key in job_description_lower:
             if required_key in cv_lower:
                 matched_skill_count += 1
@@ -265,7 +268,6 @@ class ResumeAnalyzer:
     
 if __name__ == "__main__":
     resume_path = os.path.join(AI_BASE_PATH, 'aws-devops-elegant-resume-example.pdf')
-    analyzer = ResumeAnalyzer(resume_path)
+    analyzer = ResumeAnalyzer(resume_path, ['Java'])
     print(analyzer.analyze_resume_for_hr())
     print(analyzer.analyze_resume_for_candidate())
-

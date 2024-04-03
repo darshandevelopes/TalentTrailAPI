@@ -64,8 +64,9 @@ def upload_resume(request):
             resume_path = serializer.data['resume']
             resume_path = os.path.join(settings.MEDIA_ROOT, resume_path)
             print(resume_path)
-            resume_path  = '/home/darshan/Desktop/talenttrail-backend'+resume_path
-            analyzer = ResumeAnalyzer(resume_path)
+            job = Job.objects.get(id=job_id)
+            analyzer = ResumeAnalyzer(resume_path, job.skills_required.split())
+           
             analysis = analyzer.analyze_resume_for_hr()
             dd =  {'user': user_id, 'job':job_id,'resume': resume}
             for key in dd.keys():
@@ -171,4 +172,3 @@ def job_applications(request, job_id):
         return render(request, 'job_applications.html', {'job_applications': serializer.data})
     else:
         return Response({'error':'job_id is required'}, status.HTTP_400_BAD_REQUEST)
-
