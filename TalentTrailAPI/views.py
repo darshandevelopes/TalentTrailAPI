@@ -14,8 +14,13 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.shortcuts import render
 from AI.resume_score import ResumeAnalyzer 
+from django.core.files.uploadhandler import TemporaryFileUploadHandler
 
 User = get_user_model()
+
+@api_view(['GET'])
+def tribute(request):
+    return render(request, 'tribute.html')
 
 @api_view(['POST'])
 def signup(request):
@@ -64,8 +69,9 @@ def upload_resume(request):
             resume_path = serializer.data['resume']
             resume_path = os.path.join(settings.MEDIA_ROOT, resume_path)
             print(resume_path)
-            resume_path  = '/home/darshan/Desktop/talenttrail-backend'+resume_path
-            analyzer = ResumeAnalyzer(resume_path)
+            job = Job.objects.get(id=job_id)
+            analyzer = ResumeAnalyzer(resume_path, job.skills_required.split(), job.title)
+           
             analysis = analyzer.analyze_resume_for_hr()
             dd =  {'user': user_id, 'job':job_id,'resume': resume}
             for key in dd.keys():
@@ -81,6 +87,28 @@ def upload_resume(request):
         # return JsonResponse({'message': 'Resume uploaded successfully'})
     else:
         return JsonResponse({'error': 'No file attached'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+# @authentication_classes([SessionAuthentication, TokenAuthentication])
+# @permission_classes([IsAuthenticated])
+def app_resume_analysis(request):
+    request.upload_handlers = [TemporaryFileUploadHandler(request)]
+
+    if 'file' in request.FILES:
+        resume = request.FILES['file']
+        if resume.content_type != 'application/pdf':
+            return JsonResponse({'error': 'File type not supported'}, status=400)
+    
+        # # get resume path from serializer
+        # resume_path = serializer.data['resume']
+        # resume_path = os.path.join(settings.MEDIA_ROOT, resume_path)
+        resume_path = os.path.join(settings.MEDIA_ROOT, resume.temporary_file_path())
+        analyzer = ResumeAnalyzer(resume_path, [], '')
+        analysis = analyzer.analyze_resume_for_candidate()
+        return JsonResponse(analysis, status=status.HTTP_201_CREATED)
+    else:
+        return JsonResponse({'error': 'No file attached'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 def job_list(request):
@@ -137,8 +165,8 @@ def hr_signup(request):
         return render(request, 'signup.html')
 
 @api_view(['GET', 'POST', 'DELETE'])
-@authentication_classes([SessionAuthentication, TokenAuthentication])
-@permission_classes([IsAuthenticated])
+#@authentication_classes([SessionAuthentication, TokenAuthentication])
+#@permission_classes([IsAuthenticated])
 def hr_job_post(request):
     if request.method == 'GET':
         return render(request, 'postjob.html')
@@ -171,4 +199,3 @@ def job_applications(request, job_id):
         return render(request, 'job_applications.html', {'job_applications': serializer.data})
     else:
         return Response({'error':'job_id is required'}, status.HTTP_400_BAD_REQUEST)
-

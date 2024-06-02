@@ -6,6 +6,7 @@ from pdfminer3.pdfinterp import PDFResourceManager
 from pdfminer3.pdfinterp import PDFPageInterpreter
 from pdfminer3.converter import TextConverter
 import io
+import os
 
 #Import of NLTK & Presparser
 import pickle
@@ -26,18 +27,24 @@ svcm = pickle.load(open(os.path.join(AI_BASE_PATH, 'upsvcm.pkl'), 'rb'))
 ftfidfd = pickle.load(open(os.path.join(AI_BASE_PATH, 'updatedfidf.pkl'),'rb'))
 
 class ResumeAnalyzer:
-    def __init__(self, resume_path):
+    def __init__(self, resume_path, required_skills, required_jobProfile):
         self.resume_path = resume_path
         self.resume_text = self.extract_resume_text()
-        self.required_skills = []
+        self.required_skills = required_skills
         self.min_experience = 0
         self.max_experience = 10
-        self.required_jobProfile = ""
-        self.candidate_predicted_profile = ""
+        self.required_jobProfile = required_jobProfile
+        self.candidate_predicted_profile = self.predict_profile()
 
     # Extracting Features
     def extract_resume_text(self):
         resume_file = self.resume_path
+        resume_file = '/home/ubuntu/talenttrailapi'+resume_file
+        if os.path.exists(resume_file):
+            pass
+        else:
+            resume_file = self.resume_path
+
         resource_manager = PDFResourceManager()
         with io.StringIO() as fake_file_handle:
             with TextConverter(resource_manager, fake_file_handle, laparams=LAParams()) as converter:
@@ -79,6 +86,11 @@ class ResumeAnalyzer:
     # Extraction of Skill using pyresparser
     def extract_resume_skill(self):
         resume_file = self.resume_path
+        resume_file = '/home/ubuntu/talenttrailapi'+resume_file
+        if os.path.exists(resume_file):
+            pass
+        else:
+            resume_file = self.resume_path
         resume_data = ResumeParser(resume_file).get_extracted_data()
         candidate_skill = resume_data['skills']
         return candidate_skill
@@ -136,6 +148,8 @@ class ResumeAnalyzer:
                                                 'Prototyping', 'Wireframes', 'Storyframes', 'Adobe Photoshop', 'Editing',
                                                 'Illustrator', 'After Effects', 'Premier Pro', 'Indesign', 'Wireframe',
                                                 'Solid', 'Grasp', 'User Research']
+        elif predicted_profile == 'Python Developer':
+            recommended_skills = ['Pytorch', 'Tensorflow', 'Keras', 'Scikit-learn',]
         return recommended_skills
 
     def predict_profile(self):
@@ -181,7 +195,7 @@ class ResumeAnalyzer:
         return category_name
 
     def profile_matcher(self):
-        self.candidate_predicted_profile = self.predict_profile()
+        # self.candidate_predicted_profile = self.predict_profile()
         required_profile = self.required_jobProfile
 
         if(self.candidate_predicted_profile  == required_profile):
@@ -195,7 +209,7 @@ class ResumeAnalyzer:
 
         cv_lower = [x.lower() for x in candidate_skill]
         job_description_lower = [x.lower() for x in self.required_skills]
-
+        print(f"cv lower {cv_lower}\njob {job_description_lower}")
         for required_key in job_description_lower:
             if required_key in cv_lower:
                 matched_skill_count += 1
@@ -256,7 +270,9 @@ class ResumeAnalyzer:
             # Recommended Skills
             candidate_skills = resume_data['skills']
             recommended_skills = self.recommend_skills(self.candidate_predicted_profile )
-            return {'experienced_level': experienced_level, 'resume_sections_present': resume_sections_present, 'candidate_skills': candidate_skills, 'recommended_skills': recommended_skills}
+            return {'experienced_level': experienced_level, 'resume_sections_present': resume_sections_present, 
+                    'candidate_skills': candidate_skills, 'recommended_skills': recommended_skills,
+                    'candidate_predicted_profile': self.candidate_predicted_profile}
 
     def analyze_resume_for_hr(self):
         profile_matches = self.profile_matcher()
@@ -268,4 +284,3 @@ if __name__ == "__main__":
     analyzer = ResumeAnalyzer(resume_path)
     print(analyzer.analyze_resume_for_hr())
     print(analyzer.analyze_resume_for_candidate())
-

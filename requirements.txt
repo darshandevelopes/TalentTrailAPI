@@ -9,7 +9,7 @@ chardet==5.2.0
 charset-normalizer==3.3.2
 click==8.1.7
 cloudpathlib==0.16.0
-confection==0.1.4
+confection
 cryptography==42.0.5
 cymem==2.0.8
 Django==5.0.1
@@ -54,7 +54,7 @@ spacy==2.3.9
 spacy-legacy==3.0.12
 spacy-loggers==1.0.5
 sqlparse==0.4.4
-srsly==1.0.7
+srsly
 thinc==7.4.6
 threadpoolctl==3.3.0
 tqdm==4.66.2

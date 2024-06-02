@@ -34,13 +34,11 @@
     </style>
   </head>
   <body>
+{% csrf_token %}
     <button id="deleteButton">Delete Job Post</button>
     <table>
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Job</th>
-          <th>User</th>
           <th>Resume</th>
           <th>Predicted Profile</th>
           <th>Does Profile Match</th>
@@ -50,16 +48,13 @@
       <tbody>
         {% for job_application in job_applications %}
         <tr>
-          <td>{{ job_application.id }}</td>
-          <td class="job_id">{{ job_application.job }}</td>
-          <td>{{ job_application.user }}</td>
           <td>
             <a href="{{ job_application.resume }}" download>
               <i class="fas fa-download"></i>
             </a>
           </td>
           <td>{{ job_application.predicted_profile }}</td>
-          <td>{{ job_application.does_profile_match }}</td>
+          <td>{{ job_application.does_profile_match}}</td>
           <td>{{ job_application.score }}</td>
         </tr>
         {% empty %}
@@ -91,11 +86,16 @@
           var pathArray = window.location.pathname.split("/");
           var job_id = pathArray[pathArray.length - 1];
 
+          // Get the CSRF token
+          var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
           // Call your API to delete the job post here.
           fetch("/hr/postjob/", {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
+              "X-CSRFToken": csrftoken,  // Include CSRF token in the headers
               Authorization: "token " + localStorage.getItem("token"),
             },
             body: JSON.stringify({ job_id: job_id }),
@@ -121,4 +121,10 @@
         }
       });
   </script>
+<script>
+  document.querySelectorAll('td:nth-child(3)').forEach(function(td) {
+    var value = td.textContent.trim();
+    td.textContent = value === 'True' ? 'Yes' : 'No';
+  });
+</script>
 </html>

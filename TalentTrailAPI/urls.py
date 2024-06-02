@@ -21,12 +21,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('api/tribute/', views.tribute),
     path('admin/', admin.site.urls),
     path('api/signup/', views.signup),
     path('api/login/', views.login),
     path('api/upload-resume/', views.upload_resume),
     path('api/jobs/', views.job_list, name='job_list'),
     path('api/applications/', views.applied_job_list, name='applied_job_list'),
+    path('api/app-resume-analysis/', views.app_resume_analysis, name='app_resume_analysis'),
 
     # HR Endpoints
     path('hr/', views.hr_homepage),
@@ -43,3 +45,4 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # location /media/ {
 #     alias /path/to/your/project/media/;
 # }
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
