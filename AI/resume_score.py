@@ -19,6 +19,8 @@ from pyresparser import ResumeParser
 # nltk.download('punkt')
 # nltk.download('stopwords')
 import os
+from pathlib import Path
+
 
 AI_BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -40,7 +42,7 @@ class ResumeAnalyzer:
     # Extracting Features
     def extract_resume_text(self):
         resume_file = self.resume_path
-        resume_file = '/home/ubuntu/talenttrailapi'+resume_file
+        resume_file = str(Path(__file__).resolve().parent.parent) +resume_file
         if os.path.exists(resume_file):
             pass
         else:
@@ -50,7 +52,7 @@ class ResumeAnalyzer:
         with io.StringIO() as fake_file_handle:
             with TextConverter(resource_manager, fake_file_handle, laparams=LAParams()) as converter:
                 page_interpreter = PDFPageInterpreter(resource_manager, converter)
-                
+                        
             with open(resume_file, 'rb') as fh:
                 for page in PDFPage.get_pages(fh,
                                             caching=True,
@@ -87,7 +89,7 @@ class ResumeAnalyzer:
     # Extraction of Skill using pyresparser
     def extract_resume_skill(self):
         resume_file = self.resume_path
-        resume_file = '/home/ubuntu/talenttrailapi'+resume_file
+        resume_file = str(Path(__file__).resolve().parent.parent)+resume_file
         if os.path.exists(resume_file):
             pass
         else:

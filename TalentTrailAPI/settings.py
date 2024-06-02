@@ -26,10 +26,10 @@ SECRET_KEY = 'django-insecure-$@vd^vbvgobp$-h7pg8omw-t6x_g+v8mr%n=y779v5e6-oqp%#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['darshan-rahate.me', 'www.darshan-rahate.me', '127.0.0.1', 'localhost','3.109.209.206']
+ALLOWED_HOSTS = ['darshan-rahate.me', 'www.darshan-rahate.me', '127.0.0.1', 'localhost','*']
 
-CSRF_TRUSTED_ORIGINS = ['https://darshan-rahate.me', 'https://www.darshan-rahate.me', 'http://127.0.0.1:8000', 'http://127.0.0.1','http://3.109.209.206']
-CORS_ALLOWED_ORIGINS = ['https://darshan-rahate.me', 'https://www.darshan-rahate.me', 'http://127.0.0.1:8000', 'http://127.0.0.1','http://3.109.209.206']
+CSRF_TRUSTED_ORIGINS = ['https://darshan-rahate.me', 'https://www.darshan-rahate.me', 'http://127.0.0.1:8000', 'http://127.0.0.1','http://0.0.0.0/']
+CORS_ALLOWED_ORIGINS = ['https://darshan-rahate.me', 'https://www.darshan-rahate.me', 'http://127.0.0.1:8000', 'http://127.0.0.1','http://0.0.0.0/']
 
 AUTH_USER_MODEL = 'TalentTrailAPI.CustomUser'
 

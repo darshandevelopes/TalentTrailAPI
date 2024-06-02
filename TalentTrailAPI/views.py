@@ -59,8 +59,8 @@ def upload_resume(request):
 
         # check if user already applied to this job
         job_application = JobApplication.objects.filter(user=user_id, job=job_id)
-        if job_application.exists():
-            return JsonResponse({'error': 'You have already applied to this job'}, status=status.HTTP_400_BAD_REQUEST)
+        # if job_application.exists():
+        #     return JsonResponse({'error': 'You have already applied to this job'}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = JobApplicationSerializer(data={'user': user_id, 'job':job_id,'resume': resume})
         if serializer.is_valid():

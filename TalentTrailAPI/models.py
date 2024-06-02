@@ -22,9 +22,13 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, first_name, password, **extra_fields)
     
 class CustomUser(AbstractUser):
+    USER_TYPES = [
+        ('user', 'User'),
+        ('hr', 'HR'),
+    ]
     email = models.EmailField(unique=True)
     otp = models.CharField(max_length=6, blank=True, null=True)
-    user_type = models.CharField(max_length=10, default='user')
+    user_type = models.CharField(max_length=10, choices=USER_TYPES, default='user')
     
     objects = CustomUserManager()
 
