@@ -31,6 +31,7 @@ class ResumeAnalyzer:
         self.resume_path = resume_path
         self.resume_text = self.extract_resume_text()
         self.required_skills = required_skills
+        self.required_skills = required_skills
         self.min_experience = 0
         self.max_experience = 10
         self.required_jobProfile = required_jobProfile
@@ -210,6 +211,7 @@ class ResumeAnalyzer:
         cv_lower = [x.lower() for x in candidate_skill]
         job_description_lower = [x.lower() for x in self.required_skills]
         print(f"cv lower {cv_lower}\njob {job_description_lower}")
+        print(f"cv lower {cv_lower}\njob {job_description_lower}")
         for required_key in job_description_lower:
             if required_key in cv_lower:
                 matched_skill_count += 1
@@ -281,6 +283,6 @@ class ResumeAnalyzer:
     
 if __name__ == "__main__":
     resume_path = os.path.join(AI_BASE_PATH, 'aws-devops-elegant-resume-example.pdf')
-    analyzer = ResumeAnalyzer(resume_path)
+    analyzer = ResumeAnalyzer(resume_path, ['Java'])
     print(analyzer.analyze_resume_for_hr())
     print(analyzer.analyze_resume_for_candidate())
