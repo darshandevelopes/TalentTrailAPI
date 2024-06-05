@@ -3,17 +3,5 @@ version: "3"
 services:
   django:
     build: .
-    volumes:
-      - .:/usr/src/app # Remove in production
-    expose:
-      - 8000
-
-  nginx:
-    build: ./nginx
     ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - django
-    volumes:
-      - ./nginx/myconfig.conf:/etc/nginx/conf.d/myconfig.conf # Remove in production
+      - "8000:8000"

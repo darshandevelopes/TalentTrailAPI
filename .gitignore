@@ -175,4 +175,3 @@ cython_debug/
 
 .vscode
 server-setup.sh
-nginx/
